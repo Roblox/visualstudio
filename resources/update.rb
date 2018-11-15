@@ -36,3 +36,5 @@ attribute :checksum, kind_of: String
 
 # Should the extracted ISO files be preserved after installation?
 attribute :preserve_extracted_files, kind_of: [TrueClass, FalseClass], default: false
+
+attribute :success_codes, kind_of: [Array], default: VisualStudio::VS_2017_SUCCESS_CODES

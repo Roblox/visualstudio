@@ -20,6 +20,7 @@
 #
 
 require 'digest/md5'
+require 'chef/util/path_helper'
 
 include Windows::Helper
 include Visualstudio::Helper
@@ -47,7 +48,7 @@ action :install do
         installer_type :custom
         options "/Q /norestart /noweb /Log \"#{install_log_file}\""
         timeout 3600 # 1 hour
-        success_codes [0, 127, 3010]
+        returns new_resource.success_codes
       end
 
       # Cleanup extracted ISO files
@@ -58,7 +59,6 @@ action :install do
         not_if { new_resource.preserve_extracted_files }
       end
     end
-    new_resource.updated_by_last_action(true)
   end
 end
 
@@ -68,11 +68,11 @@ def extracted_iso_dir
     Digest::MD5.hexdigest(new_resource.package_name)
   )
   extract_dir = node['visualstudio']['unpack_dir'].nil? ? default_path : node['visualstudio']['unpack_dir']
-  win_friendly_path(extract_dir)
+  Chef::Util::PathHelper.cleanpath(extract_dir)
 end
 
 def install_log_file
-  win_friendly_path(::File.join(new_resource.install_dir, 'vsinstallupdate.log'))
+  Chef::Util::PathHelper.cleanpath(::File.join(new_resource.install_dir, 'vsinstallupdate.log'))
 end
 
 # only base file name of source, e.g. VS2013.5

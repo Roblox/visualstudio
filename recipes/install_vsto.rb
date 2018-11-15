@@ -19,12 +19,14 @@
 # limitations under the License.
 #
 
+require 'chef/util/path_helper'
+
 ::Chef::Recipe.send(:include, Visualstudio::Helper)
 
 # Install VSTO for each VS version
 versions.each do |version|
   if version == '2012'
-    install_log_path = win_friendly_path(
+    install_log_path = Chef::Util::PathHelper.cleanpath(
       File.join(node['visualstudio']['2012']['install_dir'], 'vstoinstall.log')
     )
 
