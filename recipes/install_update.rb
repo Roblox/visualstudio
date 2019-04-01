@@ -27,11 +27,14 @@ versions_with_updates = versions.reject { |v| node['visualstudio'][v]['update'].
 # Install updates for each VS version
 versions_with_updates.each do |version|
   url = source_download_url(version, 'update')
+  combined_success_codes = installer_success_codes(version)
+
   visualstudio_update "visualstudio_#{version}_update" do
-    install_dir node['visualstudio'][version]['install_dir']
-    source url
-    package_name node['visualstudio'][version]['update']['package_name']
-    checksum node['visualstudio'][version]['update']['checksum']
+    install_dir   node['visualstudio'][version]['install_dir']
+    source        url
+    package_name  node['visualstudio'][version]['update']['package_name']
+    checksum      node['visualstudio'][version]['update']['checksum']
+    success_codes combined_success_codes if version == '2017'
     preserve_extracted_files node['visualstudio']['preserve_extracted_files']
   end
 end

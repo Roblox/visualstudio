@@ -26,6 +26,9 @@ default['visualstudio']['2017']['allWorkloads'] = false
 default['visualstudio']['2017']['includeRecommended'] = true
 default['visualstudio']['2017']['includeOptional'] = false
 
+# Added to allow override for error code 1 and similar
+default['visualstudio']['2017']['additional_success_codes'] = []
+
 # Test Professional w/Update1 https://docs.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-test-professional
 default['visualstudio']['2017']['testprofessional']['installer_file'] = 'vs_testprofessional.exe'
 default['visualstudio']['2017']['testprofessional']['filename'] = 'vs_testprofessional.exe'

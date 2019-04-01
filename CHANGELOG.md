@@ -2,6 +2,12 @@
 
 This file is used to list changes made in each version of visualstudion.
 
+## 1.2.5
+
+* Added the attribute for additional "success" return codes
+* Fix deprecations and formatting
+* Backported updated metadata from upstream community cookbook
+
 ## 1.2.4
 
 * Allow for overriding install dir on a per-edition basis

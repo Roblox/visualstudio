@@ -51,3 +51,5 @@ attribute :installer_file, kind_of: String, required: false
 
 # VS 2010 ini path, unused for 2013+
 attribute :configure_basename, kind_of: String, default: nil
+
+attribute :success_codes, kind_of: [Array], default: VisualStudio::VS_2017_SUCCESS_CODES

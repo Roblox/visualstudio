@@ -35,6 +35,14 @@ module Visualstudio
       url
     end
 
+    def installer_success_codes(version)
+      if node['visualstudio'][version].key? 'additional_success_codes'
+        VisualStudio::VS_2017_SUCCESS_CODES + node['visualstudio'][version]['additional_success_codes']
+      else
+        VisualStudio::VS_2017_SUCCESS_CODES
+      end
+    end
+
     private
 
     # Gets the version/edition ISO download root URL
