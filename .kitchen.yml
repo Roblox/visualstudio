@@ -1,21 +1,25 @@
 ---
 driver:
   name: vagrant
-  provider: virtualbox
-  gui: true
-  username: vagrant
-  password: vagrant
-  elevated: true
-  elevated_username: vagrant
-  elevated_password: vagrant
+  provider: vmware_fusion
 
 provisioner:
   name: chef_zero
+  require_chef_omnibus: '13.10.4'
+  always_update_cookbooks: true
+
+verifier:
+  name: inspec
 
 platforms:
   - name: windows-2012R2
     driver:
       box: mwrock/Windows2012R2
+  - name: windows-2016
+    driver:
+      box: mwrock/Windows2016
+      network:
+        - ["private_network", {ip: '192.168.42.13'}]
 
 suites:
   - name: tasks
@@ -30,3 +34,11 @@ suites:
         'preserve_extracted_files': true
       }
     }
+  - name: base_test
+    provisioner:
+      policyfile_path: test/policyfiles/base_test.rb
+    verifier:
+      inspec_tests:
+        - test/recipes
+    includes:
+      - windows-2016

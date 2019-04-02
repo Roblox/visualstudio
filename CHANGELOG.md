@@ -2,6 +2,11 @@
 
 This file is used to list changes made in each version of visualstudion.
 
+## 1.2.6
+
+* Add test kitchen with test policy and dummy tests
+* Fix version in metadata
+
 ## 1.2.5
 
 * Added the attribute for additional "success" return codes
