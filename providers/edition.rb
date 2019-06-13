@@ -31,8 +31,6 @@ def whyrun_supported?
   true
 end
 
-use_inline_resources
-
 action :install do
   unless package_is_installed?(new_resource.package_name)
     converge_by("Installing VisualStudio #{new_resource.edition} #{new_resource.version}") do
@@ -42,7 +40,7 @@ action :install do
         source new_resource.source
         overwrite true
         checksum new_resource.checksum unless new_resource.checksum.nil?
-        only_if { (!new_resource.source.nil?) and extractable_download }
+        only_if { !new_resource.source.nil? && extractable_download }
       end
 
       # Not an ISO but the web install
@@ -50,7 +48,7 @@ action :install do
         path installer_exe
         source lazy { new_resource.source }
         checksum new_resource.checksum if new_resource.checksum.nil?
-        only_if { (!new_resource.source.nil?) and (!extractable_download) }
+        only_if { !new_resource.source.nil? && !extractable_download }
       end
 
       # Ensure the target directory exists so logging doesn't fail on VS 2010
@@ -72,19 +70,58 @@ action :install do
         path extracted_iso_dir
         action :delete
         recursive true
-        only_if { (!new_resource.source.nil?) and (!new_resource.preserve_extracted_files) }
+        only_if { !new_resource.source.nil? && !new_resource.preserve_extracted_files }
+      end
+    end
+  end
+end
+
+action :modify do
+  if new_resource.version == '2017' # Modify is supported only for VS2017 installs
+    converge_by("Modifying VisualStudio installation #{new_resource.edition} #{new_resource.version}") do
+      seven_zip_archive "extract_#{new_resource.version}_#{new_resource.edition}_iso" do
+        path extracted_iso_dir
+        source new_resource.source
+        overwrite true
+        checksum new_resource.checksum unless new_resource.checksum.nil?
+        only_if { !new_resource.source.nil? && extractable_download }
+      end
+
+      # Not an ISO but the web install
+      remote_file "download__#{new_resource.version}_#{new_resource.edition}" do
+        path installer_exe
+        source lazy { new_resource.source }
+        checksum new_resource.checksum if new_resource.checksum.nil?
+        only_if { !new_resource.source.nil? && !extractable_download }
+      end
+
+      modify_options = "modify #{visual_studio_options}"
+
+      windows_package new_resource.package_name do
+        source installer_exe
+        installer_type :custom
+        options modify_options
+        timeout 3600 # 1hour
+        returns new_resource.success_codes
+      end
+
+      # Cleanup extracted ISO files from tmp dir
+      directory "remove_#{new_resource.version}_#{new_resource.edition}_dir" do
+        path extracted_iso_dir
+        action :delete
+        recursive true
+        only_if { !new_resource.source.nil? && !new_resource.preserve_extracted_files }
       end
     end
   end
 end
 
 def extractable_download
-  %w( '.iso' '.zip' '.7z').include? ::File.extname(new_resource.source).downcase
+  %w(.iso .zip .7z).include? ::File.extname(new_resource.source).downcase
 end
 
 def prepare_vs_options
   config_path = create_vs_admin_deployment_file
-#  setup_options = "/Q /norestart /noweb /log \"#{install_log_file}\" /adminfile \"#{config_path}\""
 
   setup_options = "/Q /norestart /log \"#{install_log_file}\" /adminfile \"#{config_path}\""
   if new_resource.product_key
@@ -144,19 +181,15 @@ def prepare_vs2017_options
 
   # Merge the VS version and edition default AdminDeploymentFile.xml item's with customized install_items  
   node['visualstudio'][new_resource.version.to_s][new_resource.edition.to_s]['default_install_items'].each do |key, attributes|
-    if attributes.has_key?('selected')
-      if (attributes['selected'])
-          options_components_to_install << " --add #{key}"
-      end
-    end
+    options_components_to_install << " --add #{key}" if attributes.key?('selected') && attributes['selected']
   end
 
   setup_options = '--norestart --passive --wait'
   setup_options << " --installPath \"#{new_resource.install_dir}\"" unless new_resource.install_dir.empty?
-  setup_options << " --all" if option_all
-  setup_options << " --allWorkloads" if option_allWorkloads
-  setup_options << " --includeRecommended" if option_includeRecommended
-  setup_options << " --includeOptional" if option_include_optional
+  setup_options << ' --all' if option_all
+  setup_options << ' --allWorkloads' if option_allWorkloads
+  setup_options << ' --includeRecommended' if option_includeRecommended
+  setup_options << ' --includeOptional' if option_include_optional
   setup_options << options_components_to_install unless options_components_to_install.empty?
 
   setup_options

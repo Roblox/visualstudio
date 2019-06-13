@@ -2,6 +2,12 @@
 
 This file is used to list changes made in each version of visualstudion.
 
+## 2.0.0
+
+* Add the `:modify` action to VS2017 resource/provider
+* Major version update as the support for Chef 12 is dropped in a previous commit
+* `use_inline_resources` is removed as it is default in Chef 13+
+
 ## 1.2.6
 
 * Add test kitchen with test policy and dummy tests

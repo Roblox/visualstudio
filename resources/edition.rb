@@ -19,7 +19,7 @@
 # limitations under the License.
 #
 
-actions :install
+actions :install, :modify
 default_action :install
 
 # The VS edition: professional etc

@@ -1,5 +1,3 @@
-
-
 module Visualstudio
   # VS cookbook library helper methods
   module Helper
@@ -17,7 +15,7 @@ module Visualstudio
       return node['visualstudio']['installs'] unless node['visualstudio']['installs'].nil?
       [{
         'edition' => node['visualstudio']['edition'],
-        'version' => node['visualstudio']['version']
+        'version' => node['visualstudio']['version'],
       }]
     end
 
@@ -73,6 +71,26 @@ module Visualstudio
         end
       end
       false
+    end
+
+    # Inspired by https://github.com/btc-ag/chef-vs2017/blob/develop/libraries/vs2017.rb
+    def vs2017_vswhere(edition, property)
+      vswhere_exe = '"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe"'
+
+      # make first character uppercase
+      product = edition.sub(/\S/, &:upcase)
+      cmd = Chef::Mixlib::ShellOut.new(
+        "#{vswhere_exe} -all -version [15.0,16.0) -property #{property} -products Microsoft.VisualStudio.Product.#{product}",
+        returns: [0, 1]
+      )
+      cmd.run_command
+      cmd.error!
+      cmd
+    end
+
+    def vs2017_edition_installed?(edition)
+      cmd = vs2017_vswhere(edition, 'installationVersion')
+      cmd.stderr.empty? && (cmd.stdout =~ /^15./)
     end
 
     def uninstall_reg_key

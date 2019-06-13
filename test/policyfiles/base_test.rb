@@ -9,10 +9,10 @@ run_list.push(
 )
 
 #
-# Attributes
+# Attributes for VS 2017
 #
-# Uncomment the overrides to test specific parts of functionality. 
-# WIP to turn into a proper test suite
+
+# default['visualstudio']['preserve_extracted_files'] = true
 #
 # override['visualstudio']['2017']['additional_success_codes'] = [1]
 # override['visualstudio']['installs'] = [
