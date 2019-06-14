@@ -30,7 +30,11 @@ installs.each do |install|
   install_directory = node['visualstudio'][version][edition]['install_dir'] || node['visualstudio'][version]['install_dir'] # rubocop:disable Metrics/LineLength
   combined_success_codes = installer_success_codes(version)
 
+  action = :install
+  action = :modify if version == '2017' && vs2017_edition_installed?(edition)
+
   visualstudio_edition "visualstudio_#{version}_#{edition}" do
+    action      action
     edition     edition
     version     version
     install_dir install_directory
